@@ -793,6 +793,10 @@ void openconnect_vpninfo_free(struct openconnect_info *vpninfo)
 	free(vpninfo->sso_login_final);
 	free(vpninfo->sso_error_cookie);
 	free(vpninfo->sso_token_cookie);
+	free(vpninfo->oidc_discovery_endpoint);
+	free(vpninfo->oidc_client_id);
+	free(vpninfo->oidc_nonce);
+	free(vpninfo->oidc_token_endpoint);
 
 	free(vpninfo->ppp);
 	buf_free(vpninfo->ppp_tls_connect_req);
@@ -1861,7 +1865,9 @@ retry:
 		vpninfo->sso_username = NULL;
 
 		/* Handle the special Cisco external browser mode */
-		if (vpninfo->sso_browser_mode && !strcmp(vpninfo->sso_browser_mode, "external")) {
+		if (vpninfo->oidc_discovery_endpoint) {
+			ret = handle_oidc_auth(vpninfo);
+		} else if (vpninfo->sso_browser_mode && !strcmp(vpninfo->sso_browser_mode, "external")) {
 			ret = handle_external_browser(vpninfo);
 		} else if (vpninfo->open_webview) {
 			ret = vpninfo->open_webview(vpninfo, vpninfo->sso_login, vpninfo->cbdata);

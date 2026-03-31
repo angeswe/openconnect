@@ -434,6 +434,40 @@ static int parse_auth_node(struct openconnect_info *vpninfo, xmlNode *xml_node,
 			   struct oc_auth_form *form)
 {
 	int ret = 0;
+	char *authenticator = NULL;
+
+	xmlnode_get_prop(xml_node, "authenticator", &authenticator);
+
+	/* Clavister OneConnect OIDC authentication */
+	if (authenticator && !strcmp(authenticator, "oidc")) {
+		struct oc_form_opt *opt;
+
+		for (xmlNode *child = xml_node->children; child; child = child->next) {
+			if (child->type != XML_ELEMENT_NODE)
+				continue;
+			xmlnode_get_text(child, "discovery-endpoint", &vpninfo->oidc_discovery_endpoint);
+			xmlnode_get_text(child, "client-id", &vpninfo->oidc_client_id);
+			xmlnode_get_text(child, "nonce", &vpninfo->oidc_nonce);
+			xmlnode_get_text(child, "title", &form->message);
+		}
+		free(authenticator);
+
+		/* Create a synthetic SSO_TOKEN form opt to trigger the SSO flow */
+		opt = calloc(1, sizeof(*opt));
+		if (!opt)
+			return -ENOMEM;
+		opt->type = OC_FORM_OPT_SSO_TOKEN;
+		opt->name = strdup("id-token");
+		opt->label = strdup("OIDC Token");
+		opt->next = form->opts;
+		form->opts = opt;
+
+		vpn_progress(vpninfo, PRG_INFO,
+			     _("OIDC authentication requested (client_id=%s)\n"),
+			     vpninfo->oidc_client_id);
+		return 0;
+	}
+	free(authenticator);
 
 	for (xml_node = xml_node->children; xml_node; xml_node = xml_node->next) {
 		if (xml_node->type != XML_ELEMENT_NODE)
@@ -441,6 +475,7 @@ static int parse_auth_node(struct openconnect_info *vpninfo, xmlNode *xml_node,
 
 		xmlnode_get_text(xml_node, "banner", &form->banner);
 		xmlnode_get_text(xml_node, "message", &form->message);
+		xmlnode_get_text(xml_node, "title", &form->message);
 		xmlnode_get_text(xml_node, "error", &form->error);
 		xmlnode_get_text(xml_node, "sso-v2-login", &vpninfo->sso_login);
 		xmlnode_get_text(xml_node, "sso-v2-login-final", &vpninfo->sso_login_final);
@@ -964,6 +999,8 @@ static int xmlpost_append_form_opts(struct openconnect_info *vpninfo,
 	node = xmlNewChild(root, NULL, XCAST("auth"), NULL);
 	if (!node)
 		goto bad;
+	if (vpninfo->oidc_discovery_endpoint)
+		xmlNewProp(node, XCAST("id"), XCAST("main"));
 
 	for (opt = form->opts; opt; opt = opt->next) {
 		/* group_list: create a new <group-select> node under <config-auth> */

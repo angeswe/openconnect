@@ -803,6 +803,12 @@ struct openconnect_info {
 	char *sso_cookie_value;
 	char *sso_browser_mode;
 
+	/* OIDC authentication (Clavister OneConnect) */
+	char *oidc_discovery_endpoint;
+	char *oidc_client_id;
+	char *oidc_nonce;
+	char *oidc_token_endpoint;
+
 	int verbose;
 	void *cbdata;
 	openconnect_validate_peer_cert_vfn validate_peer_cert;
@@ -1676,6 +1682,7 @@ void openconnect_set_juniper(struct openconnect_info *vpninfo);
 
 /* hpke.c */
 int handle_external_browser(struct openconnect_info *vpninfo);
+int handle_oidc_auth(struct openconnect_info *vpninfo);
 
 /* version.c */
 extern const char openconnect_version_str[];
