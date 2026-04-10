@@ -12,6 +12,7 @@ version.c
 
 /aclocal.m4
 /autom4te.cache/
+/compile
 /config.guess
 /config.sub
 /configure
@@ -21,12 +22,29 @@ version.c
 /missing
 
 /.deps/
+/config.h
+/config.h.in
 /config.log
 /config.status
 /libopenconnect.map
 /libtool
 /openconnect.8
 /openconnect.pc
+
+/json/.deps/
+/json/.dirstamp
+/json/*.lo
+
+/list-system-keys
+/os-tcp-mtu
+
+/m4/libtool.m4
+/m4/ltoptions.m4
+/m4/ltsugar.m4
+/m4/ltversion.m4
+/m4/lt~obsolete.m4
+
+/stamp-h1
 
 openconnect
 nm-openconnect-auth-dialog
@@ -63,6 +81,15 @@ Makefile
 test-driver
 tests/*.log
 tests/*.trs
+tests/.deps/
+tests/.libs/
+tests/buftest
+tests/lzstest
+tests/seqtest
+tests/serverhash
+tests/configs/test-user-cert.config
+tests/configs/test-user-pass.config
+tests/softhsm2.conf
 
 # Leftovers from constructing the Windows installer
 file-list.txt
