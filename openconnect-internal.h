@@ -1682,6 +1682,8 @@ void openconnect_set_juniper(struct openconnect_info *vpninfo);
 
 /* hpke.c */
 int handle_external_browser(struct openconnect_info *vpninfo);
+
+/* auth-clavister.c */
 int handle_oidc_auth(struct openconnect_info *vpninfo);
 
 /* version.c */
