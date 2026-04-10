@@ -441,16 +441,26 @@ static int parse_auth_node(struct openconnect_info *vpninfo, xmlNode *xml_node,
 	/* Clavister OneConnect OIDC authentication */
 	if (authenticator && !strcmp(authenticator, "oidc")) {
 		struct oc_form_opt *opt;
+		char *new_discovery = NULL;
 
 		for (xmlNode *child = xml_node->children; child; child = child->next) {
 			if (child->type != XML_ELEMENT_NODE)
 				continue;
-			xmlnode_get_text(child, "discovery-endpoint", &vpninfo->oidc_discovery_endpoint);
+			xmlnode_get_text(child, "discovery-endpoint", &new_discovery);
 			xmlnode_get_text(child, "client-id", &vpninfo->oidc_client_id);
 			xmlnode_get_text(child, "nonce", &vpninfo->oidc_nonce);
 			xmlnode_get_text(child, "title", &form->message);
 		}
 		free(authenticator);
+
+		if (!new_discovery) {
+			/* No discovery-endpoint means this is a success/status
+			 * response, not a new OIDC challenge. */
+			return 0;
+		}
+
+		free(vpninfo->oidc_discovery_endpoint);
+		vpninfo->oidc_discovery_endpoint = new_discovery;
 
 		/* Create a synthetic SSO_TOKEN form opt to trigger the SSO flow */
 		opt = calloc(1, sizeof(*opt));
