@@ -30,6 +30,35 @@ The upstream openconnect client does not handle this response type. This fork im
 8. The `id_token` is sent back to the server in an `<id-token>` element in the auth-reply
 9. The server validates the token and establishes the VPN session
 
+## Building
+
+This is a standard autotools project. From a git checkout:
+
+```bash
+# Generate the configure script
+./autogen.sh
+
+# Configure the build
+./configure
+
+# Build
+make
+```
+
+**Prerequisites** (package names for Arch/CachyOS):
+
+```bash
+sudo pacman -S autoconf automake libtool pkg-config gnutls libxml2 zlib
+```
+
+On Debian/Ubuntu:
+
+```bash
+sudo apt install autoconf automake libtool pkg-config libgnutls28-dev libxml2-dev zlib1g-dev
+```
+
+Run `./configure --help` to see available options (e.g., `--with-openssl` to use OpenSSL instead of GnuTLS).
+
 ## Usage
 
 ```bash
